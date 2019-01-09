@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/cache
+        http://www.springframework.org/schema/cache/spring-cache-4.0.xsd">
+    <!-- 配置SpringMVC -->
+
+    <!-- 1.自动扫描组件（@Controller, @Service, @Repository, @Component）-->
+    <context:component-scan base-package="cn.hhfarcry">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" />
+    </context:component-scan>
+
+    <!-- 2.开启SpringMVC注解模式 -->
+    <mvc:annotation-driven />
+    <!--<cache:annotation-driven />-->
+
+    <!-- 3.静态资源默认servlet配置(1)加入对静态资源的处理：js,gif,png(2)允许使用"/"做整体映射-->
+    <mvc:default-servlet-handler/>
+
+    <!-- 4.配置jsp 显示ViewResolver -->
+
+    <!-- 5.数据转换服务2017-09-08 08:30:00     格式转换-->
+    <bean class="org.springframework.format.support.FormattingConversionServiceFactoryBean"></bean>
+
+    <!-- 6.处理RequestMapping的服务 -->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+
+    <!-- 7.json数据转换器：jackson2  json  用于把对象转化成JSON字符串response.setContentType("application/json;charset=utf-8");-->
+    <bean id="mappingJacksonHttpMessageConverter"
+          class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <value>text/html;charset=UTF-8</value>
+                <value>text/plain;charset=UTF-8</value>
+                <value>application/json;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 8.URL要返回JSON数据，这个JSON由谁来生成  引用json数据转换器-->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <ref bean="mappingJacksonHttpMessageConverter"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 9.配置静态文件的路径  让这些文件不会被过滤掉  webapp-static-->
+    <!--     <mvc:resources location="/static/" mapping="/images/**"/> -->
+    <!--<mvc:resources location="/images/" mapping="/images/**"/>-->
+    <!--<mvc:resources location="/css/" mapping="/css/**"/>-->
+    <!--<mvc:resources location="/js/" mapping="/js/**"/>-->
+
+    <!-- 10.配置文件上传 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="maxUploadSize" value="10485760000"/>
+        <property name="maxInMemorySize" value="40960"/>
+    </bean>
+</beans>
